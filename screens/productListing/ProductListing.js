@@ -24,8 +24,12 @@ const ProductListing = () => {
 
     const navigation = useNavigation();
 
-    const handlePress = ()=>{
-        navigation.navigate('ProductDetails')
+    const handlePress = (productId, bgColor)=>{
+        navigation.navigate('ProductDetails', {
+            productId: productId, 
+            backgroundColor: bgColor
+        });
+        //console.log(productId);
     }
     
     return (
@@ -33,7 +37,7 @@ const ProductListing = () => {
             <FlatList
                 data={products}
                 renderItem={(itemData)=>(
-                    <ProductListItem title={itemData.item.title} bgColor={createRandomColor()} onPress={handlePress}/>    
+                    <ProductListItem title={itemData.item.title} bgColor={createRandomColor()} onPress={()=>handlePress(itemData.item.id, createRandomColor())}/>    
                 )}
                 keyExtractor={(itemData)=>itemData.id}
                 numColumns={2}
