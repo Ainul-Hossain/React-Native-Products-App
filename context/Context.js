@@ -16,6 +16,34 @@ const ProductContext = ({children})=>{
     // maintaining our loading state
     const [loading, setLoading] = useState(false);
 
+    // favorites list
+    const [favoriteProducts, setFavoriteProducts] = useState([]);
+
+    // remove favorite product function 
+    const handleRemoveProduct = (productId)=>{
+        setFavoriteProducts(favoriteProducts.filter((item)=>item.id !== productId));
+    }
+
+    const addToFavorite = (productId, reason)=>{
+        const copyFavoriteProducts = [...favoriteProducts];
+        const index = copyFavoriteProducts.findIndex((item)=>item.id === productId);
+
+        //console.log(products.filter((item)=>item.id===productId))
+
+        if(index === -1){
+            let getCurrentProductInfo = products.filter((item)=>item.id === productId); // also possible using find method
+            // console.log(getCurrentProductInfo);
+            copyFavoriteProducts.push({
+                title: getCurrentProductInfo[0].title,
+                id: productId,
+                reason: reason
+            })
+        }else{
+            copyFavoriteProducts.find((item)=>item.id === productId).reason = reason;
+        }
+        setFavoriteProducts(copyFavoriteProducts)
+    }
+
     useEffect(()=>{
         setLoading(true);
 
@@ -33,9 +61,10 @@ const ProductContext = ({children})=>{
     }, [])
 
     // console.log(products);
+    // console.log(favoriteProducts);
 
     return (
-        <Context.Provider value={{products, loading}}>
+        <Context.Provider value={{products, loading, favoriteProducts, addToFavorite, handleRemoveProduct}}>
             {children}
         </Context.Provider>
     )

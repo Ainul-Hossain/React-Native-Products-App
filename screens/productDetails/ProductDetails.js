@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, Text, View, Modal, StyleSheet, Pressable } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, Button, Text, View, Modal, StyleSheet, Pressable, TextInput } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import ProductDetailsItem from '../../components/ProductDetailsItem/ProductDetailsItem';
+import { Context } from '../../context/Context';
 
 const ProductDetails = () => {
   console.log('This line is from Product Details Page...')
@@ -24,6 +25,18 @@ const ProductDetails = () => {
   // modal visibility 
   const [modalVisible, setModalVisible] = useState(false);
 
+  // reason - favorite
+  const [reason, setReason] = useState('');
+
+  // get addToFavorite function from context
+  const {addToFavorite, favoriteProducts} = useContext(Context);
+
+  const isCurrentProductOnFavoritePage = favoriteProducts.length>0 && favoriteProducts.find((item)=>item.id === productId) ? true: false;
+
+  const handleOnChangeText = (e)=>{
+    setReason(e);
+  }
+
   useEffect(() => {
     setLoading(true);
 
@@ -44,7 +57,7 @@ const ProductDetails = () => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
-        return <Button onPress={()=>setModalVisible(true)} title="Add Favorites" />
+        return <Button onPress={()=>setModalVisible(true)} title={isCurrentProductOnFavoritePage?'Update Favorites':'Add Favorites'} />
       }
     })
   }, [])
@@ -72,12 +85,25 @@ const ProductDetails = () => {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Hello World!</Text>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={styles.textStyle}>Hide Modal</Text>
-            </Pressable>
+            <TextInput style={styles.reasonTextInput} placeholder='Why You Like This Product?' onChangeText={handleOnChangeText} value={reason}/>
+
+            <View style={styles.buttonWrapper}>
+              <Pressable
+                style={[styles.button, styles.buttonOpen]}
+                onPress={() => {
+                  addToFavorite(productId, reason);
+                  setModalVisible(!modalVisible)
+                }}>
+                <Text style={styles.textStyle}>{isCurrentProductOnFavoritePage?'Update':'Add'}</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => setModalVisible(!modalVisible)}>
+                <Text style={styles.textStyle}>Close</Text>
+              </Pressable>
+            </View>
+
           </View>
         </View>
       </Modal>
@@ -95,7 +121,7 @@ const styles = StyleSheet.create({
   modalView: {
     margin: 20,
     backgroundColor: 'white',
-    borderRadius: 20,
+    borderRadius: 5,
     padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
@@ -108,15 +134,17 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   button: {
-    borderRadius: 20,
+    borderRadius: 2,
     padding: 10,
     elevation: 2,
   },
   buttonOpen: {
     backgroundColor: '#F194FF',
+    marginRight: 5
   },
   buttonClose: {
     backgroundColor: '#2196F3',
+    marginLeft: 5
   },
   textStyle: {
     color: 'white',
@@ -127,6 +155,16 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  buttonWrapper: {
+    flexDirection: 'row',
+    marginTop: 10
+  },
+  reasonTextInput: {
+    borderWidth: 1,
+    borderRadius: 2,
+    borderColor: 'green',
+    padding: 5
+  }
 });
 
 export default ProductDetails;
